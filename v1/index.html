@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Email</title>
+    <style>
+
+        .error-dialog {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        z-index: 9999;
+        }
+
+        .error-dialog h2 {
+        margin-top: 0;
+        }
+
+        .error-dialog button {
+        padding: 10px 20px;
+        width: 50%;
+        margin-inline: 25%;
+        background-color: #ff0000;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('/fond.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            width: 35%;
+            padding-inline: 40px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
+        }
+
+        .container h2 {
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .form-group textarea {
+            height: 100px;
+        }
+
+        .form-group button[type="submit"] {
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-dialog">
+        <h2 id="title">Erreur</h2>
+        <p id="description">Une erreur s'est produite !</p>
+        <button onclick="closeErrorDialog()">OK</button>
+      </div>
+    <div class="container">
+        <h2>Email Sender</h2>
+        <div>
+            <div class="form-group">
+                <label for="semail">Your Email</label>
+                <input type="text" id="semail" name="semail" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Gmail Application Password </label>
+                <input type="text" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Adresse e-mail :</label>
+                <input type="text" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message :</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+            <div class="form-group">
+                <button onclick="setClick()" type="submit" id="submit">Envoyer</button>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        function setClick(){
+            console.log("test");
+            semail = document.getElementById('semail').value;
+            password = document.getElementById('password').value;
+            email = document.getElementById("email").value;
+            message = document.getElementById("message").value;
+            if(semail != "" && password != "" && email != "" && message != ""){
+                console.log(semail+":"+password+":"+email+":"+message);
+                data = {
+                    "email": email,
+                    "semail": semail,
+                    "pass": password,
+                    "message": message
+                }
+                fetch('/sendmail', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data);
+                    if ("error" in data){
+                        openErrorDialog(data.error , data.message)
+                    }else{
+                        openErrorDialog('Succes', "l'email a ete envoyer avec success");
+                    }
+                })
+                .catch(error => {
+                    openErrorDialog('Une erreur s\'est produite:', error);
+                });
+            }else{
+                openErrorDialog("Erreur de Saisir" , "un des champ saisir est vide ");
+            }
+        }
+        function closeErrorDialog() {
+            var errorDialog = document.querySelector('.error-dialog');
+            errorDialog.style.display = 'none';
+        }
+
+        function openErrorDialog(title , description){
+            var errorDialog = document.querySelector('.error-dialog');
+            errorDialog.childNodes[1].textContent = title 
+            errorDialog.childNodes[3].innerHTML = description
+            errorDialog.style.display = 'block';
+        }
+
+    </script>
+</body>
+</html>
